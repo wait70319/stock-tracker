@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>股市看板 (含走勢圖)</title>
+    <title>股市看板 (GitHub版)</title>
     <style>
         body {
             background-color: #121212;
@@ -39,7 +39,7 @@
             border-left: 5px solid #444;
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
             display: flex;
-            flex-direction: column; /* 改為垂直排列以容納圖表 */
+            flex-direction: column;
         }
 
         .card-top {
@@ -59,18 +59,16 @@
         /* 走勢圖容器 */
         .chart-area {
             width: 100%;
-            height: 50px; /* 圖表高度 */
+            height: 50px;
             margin-top: 10px;
             position: relative;
             border-top: 1px solid #2a2a2a;
             padding-top: 5px;
         }
         
-        /* SVG 樣式 */
         svg { width: 100%; height: 100%; overflow: visible; }
         .line-path { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; }
 
-        /* 顏色定義 */
         .up { color: #ff4d4d; }
         .down { color: #00e676; }
         .neutral { color: #fff; }
@@ -85,7 +83,7 @@
         button {
             background: #333; color: white; border: 1px solid #555;
             padding: 6px 15px; border-radius: 20px; font-size: 12px;
-            margin-top: 5px;
+            margin-top: 5px; cursor: pointer;
         }
 
         #debug-log {
@@ -116,13 +114,13 @@
 <div id="debug-log">除錯日誌: <br></div>
 
 <script>
-    // === 追蹤清單 ===
+    // === 追蹤清單 (GitHub版 - 已更新) ===
     const watchlist = [
         { id: '^TWII', name: '加權指數' },
-        { id: 'TXF=F', name: '台指期 (TXF)' }, 
         { id: '00989A.TW', name: '00989A 摩根美國科技' },
         { id: '00982A.TW', name: '00982A 群益台灣強棒' },
-        { id: '00949.TW', name: '00949 復華日本龍頭' },
+        { id: '00972.TW', name: '00972' },
+        { id: '009805.TW', name: '009805' },
         { id: '00919.TW', name: '00919 群益精選高息' },
         { id: '00923.TW', name: '00923 群益ESG低碳' },
         { id: 'JPY=X', name: '美元/日元' },
@@ -132,7 +130,6 @@
     const container = document.getElementById('container');
     const debugLog = document.getElementById('debug-log');
     
-    // 初始化卡片 HTML
     function init() {
         container.innerHTML = watchlist.map(item => `
             <div class="card" id="card-${item.id}">
@@ -145,21 +142,18 @@
                         <div class="price" style="color:#666; font-size:14px;">更新中...</div>
                     </div>
                 </div>
-                <div class="chart-area" id="chart-${item.id}">
-                    <!-- SVG 將插入此處 -->
-                </div>
+                <div class="chart-area" id="chart-${item.id}"></div>
             </div>
         `).join('');
     }
 
-    // 抓取數據與繪圖
     async function fetchData() {
         log("開始更新...");
         const proxyBase = "https://corsproxy.io/?"; 
         
         const promises = watchlist.map(async (item) => {
             try {
-                // range=1d 取得當天走勢數據
+                // interval=5m 取得5分鐘線圖，range=1d 當日
                 const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${item.id}?interval=5m&range=1d&includePrePost=false&_=${Date.now()}`;
                 const finalUrl = proxyBase + encodeURIComponent(yahooUrl);
 
@@ -176,7 +170,6 @@
                 const price = meta.regularMarketPrice;
                 const prevClose = meta.chartPreviousClose;
                 
-                // 準備繪圖數據 (過濾掉空值)
                 let chartData = [];
                 if (quote.close) {
                     chartData = quote.close.filter(p => p !== null && p !== undefined);
@@ -188,7 +181,6 @@
                     change: price - prevClose,
                     changePct: (price - prevClose) / prevClose * 100,
                     chartData: chartData,
-                    prevClose: prevClose, // 用來畫參考線 (可選)
                     success: true
                 };
 
@@ -211,7 +203,6 @@
             const div = card.querySelector('.data');
             
             if(d.success) {
-                // 1. 更新數字
                 const isUp = d.change > 0;
                 const isDown = d.change < 0;
                 const colorClass = isUp ? 'up' : (isDown ? 'down' : 'neutral');
@@ -229,7 +220,6 @@
                     </div>
                 `;
 
-                // 2. 繪製走勢圖 SVG
                 if (d.chartData && d.chartData.length > 1) {
                     chartDiv.innerHTML = generateSVG(d.chartData, strokeClass);
                 } else {
@@ -238,25 +228,19 @@
 
             } else {
                 div.innerHTML = `<div style="font-size:12px; color:#ff5252;">${d.msg || '失敗'}</div>`;
-                chartDiv.innerHTML = '';
             }
         });
     }
 
-    // SVG 產生邏輯
     function generateSVG(prices, strokeClass) {
-        // 找出最大最小值以進行縮放
         const min = Math.min(...prices);
         const max = Math.max(...prices);
-        const range = max - min || 1; // 避免除以0
-
-        const width = 300; // 虛擬寬度
-        const height = 50; // 虛擬高度
+        const range = max - min || 1;
+        const width = 300; 
+        const height = 50; 
         
-        // 產生路徑點 "x,y x,y ..."
         const points = prices.map((p, index) => {
             const x = (index / (prices.length - 1)) * width;
-            // Y軸反轉：價格高在上面(y=0)，價格低在下面(y=height)
             const y = height - ((p - min) / range) * height; 
             return `${x},${y}`;
         }).join(" ");
@@ -274,7 +258,6 @@
         if(lines.length > 6) debugLog.innerHTML = lines.slice(lines.length-6).join("<br>");
     }
 
-    // 時間與排程
     function updateClock() {
         const now = new Date();
         document.getElementById('clock').innerText = now.toLocaleTimeString('zh-TW', {hour12:false});
