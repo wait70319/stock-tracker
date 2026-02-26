@@ -3,51 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>股市看板 (穩定版)</title>
+    <title>股市看板 (GitHub版)</title>
     <style>
-        body { background-color: #121212; color: #e0e0e0; font-family: -apple-system, Roboto, Arial, sans-serif; margin: 0; padding: 15px; font-size: 14px; }
-        header { border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: -apple-system, Roboto, Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+            font-size: 14px;
+        }
+
+        header {
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .status-box { text-align: right; }
-        .status-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .status-badge { 
+            display: inline-block; padding: 2px 6px; border-radius: 4px; 
+            font-size: 11px; font-weight: bold;
+        }
         .live { background: #004d40; color: #00e676; border: 1px solid #00695c; }
         .sleep { background: #3e2723; color: #ff5252; border: 1px solid #4e342e; }
-        .card { background-color: #1e1e1e; border-radius: 8px; padding: 12px 15px; margin-bottom: 10px; border-left: 5px solid #444; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        .card-top { display: flex; justify-content: space-between; align-items: center; }
+
+        .card {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-left: 5px solid #444;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
         .info h2 { margin: 0; font-size: 16px; color: #fff; }
         .info p { margin: 3px 0 0 0; font-size: 11px; color: #888; }
+
         .data { text-align: right; }
         .price { font-size: 19px; font-weight: bold; font-family: monospace; }
         .change { font-size: 13px; font-weight: 500; margin-top: 2px; }
-        .chart-area { width: 100%; height: 55px; margin-top: 10px; border-top: 1px solid #2a2a2a; padding-top: 5px; }
-        .last-update { font-size: 12px; color: #888; text-align: center; margin: 8px 0; }
-        button { background: #333; color: white; border: 1px solid #555; padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; }
-        #debug-log { display: block; margin-top: 20px; font-size: 10px; color: #aaa; background: #1a1a1a; padding: 10px; border-radius: 6px; max-height: 180px; overflow-y: auto; word-break: break-all; }
+
+        /* 走勢圖容器 */
+        .chart-area {
+            width: 100%;
+            height: 50px;
+            margin-top: 10px;
+            position: relative;
+            border-top: 1px solid #2a2a2a;
+            padding-top: 5px;
+        }
+        
+        svg { width: 100%; height: 100%; overflow: visible; }
+        .line-path { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; }
+
         .up { color: #ff4d4d; }
         .down { color: #00e676; }
+        .neutral { color: #fff; }
+        
         .up-border { border-left-color: #ff4d4d; }
         .down-border { border-left-color: #00e676; }
+        
+        .up-stroke { stroke: #ff4d4d; }
+        .down-stroke { stroke: #00e676; }
+        .neutral-stroke { stroke: #888; }
+
+        button {
+            background: #333; color: white; border: 1px solid #555;
+            padding: 6px 15px; border-radius: 20px; font-size: 12px;
+            margin-top: 5px; cursor: pointer;
+        }
+
+        #debug-log {
+            margin-top: 20px; font-size: 10px; color: #555; 
+            border-top: 1px solid #333; padding-top: 10px;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
+
 <header>
     <div>
-        <h1 style="margin:0; font-size:18px;">股市看板 <span style="font-size:12px;">(穩定即時版)</span></h1>
-        <div style="font-size:11px; color:#888;">來源: mis.twse 官方 • 完全免費</div>
+        <h1 style="margin:0; font-size:18px;">股市看板 <span style="font-size:12px; font-weight:normal;">(含走勢)</span></h1>
+        <div style="font-size:11px; color:#888;">來源: Yahoo Finance</div>
     </div>
     <div class="status-box">
         <div id="clock" style="font-size:14px; font-weight:bold;">--:--:--</div>
         <div id="status-badge" class="status-badge sleep">檢查中</div>
-        <button onclick="fetchData()">⟳ 刷新</button>
+        <div><button onclick="fetchData()">⟳ 刷新</button></div>
     </div>
 </header>
 
-<div id="last-update" class="last-update">最後更新: --</div>
+<div id="container">
+    <div style="text-align:center; padding:20px; color:#666;">初始化系統...</div>
+</div>
 
-<div id="container"></div>
-
-<div id="debug-log">除錯日誌（已開啟）<br></div>
+<div id="debug-log">除錯日誌: <br></div>
 
 <script>
+    // === 追蹤清單 (GitHub版 - 已更新) ===
     const watchlist = [
         { id: '^TWII', name: '加權指數' },
         { id: '2383.TW', name: '2383 台光電' },
@@ -63,12 +130,7 @@
 
     const container = document.getElementById('container');
     const debugLog = document.getElementById('debug-log');
-
-    function log(msg) {
-        debugLog.innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}<br>`;
-        debugLog.scrollTop = debugLog.scrollHeight;
-    }
-
+    
     function init() {
         container.innerHTML = watchlist.map(item => `
             <div class="card" id="card-${item.id}">
@@ -78,70 +140,123 @@
                         <p>${item.id}</p>
                     </div>
                     <div class="data">
-                        <div class="price" style="color:#666;">載入中...</div>
+                        <div class="price" style="color:#666; font-size:14px;">更新中...</div>
                     </div>
                 </div>
-                <div class="chart-area" id="chart-${item.id}">走勢載入中...</div>
+                <div class="chart-area" id="chart-${item.id}"></div>
             </div>
         `).join('');
-        log("✅ 頁面初始化完成，共 " + watchlist.length + " 檔");
     }
 
     async function fetchData() {
         log("開始更新...");
-        const twSymbols = watchlist
-            .filter(item => item.id.endsWith('.TW') || item.id === '^TWII')
-            .map(item => item.id === '^TWII' ? 'tse_t00.tw' : `tse_${item.id.replace('.TW','')}.tw`)
-            .join('|');
+        const proxyBase = "https://corsproxy.io/?"; 
+        
+        const promises = watchlist.map(async (item) => {
+            try {
+                // interval=5m 取得5分鐘線圖，range=1d 當日
+                const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${item.id}?interval=5m&range=1d&includePrePost=false&_=${Date.now()}`;
+                const finalUrl = proxyBase + encodeURIComponent(yahooUrl);
 
-        try {
-            const url = `https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=${twSymbols}&json=1&_=${Date.now()}`;
-            const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            
-            const json = await res.json();
-            json.msgArray.forEach(stock => {
-                const id = stock.ch.includes('t00') ? '^TWII' : `${stock.c}.TW`;
-                const price = parseFloat(stock.z && stock.z.trim() !== '-' ? stock.z : stock.y) || 0;
-                const prev = parseFloat(stock.y) || price;
-                const change = price - prev;
-                const pct = prev ? (change / prev * 100) : 0;
+                const res = await fetch(finalUrl);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                
+                const json = await res.json();
+                if(!json.chart || !json.chart.result) throw new Error("無資料");
 
-                updateCard(id, price, change, pct);
-                log(`✓ ${id} 更新成功`);
-            });
-        } catch (e) {
-            log(`❌ mis.twse 錯誤: ${e.message}`);
-        }
+                const result = json.chart.result[0];
+                const meta = result.meta;
+                const quote = result.indicators.quote[0];
+                
+                const price = meta.regularMarketPrice;
+                const prevClose = meta.chartPreviousClose;
+                
+                let chartData = [];
+                if (quote.close) {
+                    chartData = quote.close.filter(p => p !== null && p !== undefined);
+                }
 
-        document.getElementById('last-update').innerHTML = `最後更新: ${new Date().toLocaleTimeString('zh-TW')} (台北)`;
-        log("更新完成！");
+                return {
+                    id: item.id,
+                    price: price,
+                    change: price - prevClose,
+                    changePct: (price - prevClose) / prevClose * 100,
+                    chartData: chartData,
+                    success: true
+                };
+
+            } catch (e) {
+                return { id: item.id, success: false, msg: e.message };
+            }
+        });
+
+        const results = await Promise.all(promises);
+        render(results);
+        log("更新完成 (" + new Date().toLocaleTimeString() + ")");
     }
 
-    function updateCard(id, price, change, pct) {
-        const card = document.getElementById(`card-${id}`);
-        if (!card) return;
+    function render(data) {
+        data.forEach(d => {
+            const card = document.getElementById(`card-${d.id}`);
+            const chartDiv = document.getElementById(`chart-${d.id}`);
+            if(!card) return;
 
-        const isUp = change > 0;
-        const color = isUp ? 'up' : (change < 0 ? 'down' : '');
-        const border = isUp ? 'up-border' : (change < 0 ? 'down-border' : '');
+            const div = card.querySelector('.data');
+            
+            if(d.success) {
+                const isUp = d.change > 0;
+                const isDown = d.change < 0;
+                const colorClass = isUp ? 'up' : (isDown ? 'down' : 'neutral');
+                const strokeClass = isUp ? 'up-stroke' : (isDown ? 'down-stroke' : 'neutral-stroke');
+                const sign = isUp ? '▲' : (isDown ? '▼' : '');
+                const borderClass = isUp ? 'up-border' : (isDown ? 'down-border' : '');
+                
+                const fixed = d.id.includes('=X') ? 4 : 2;
 
-        card.className = `card ${border}`;
-        card.querySelector('.data').innerHTML = `
-            <div class="price ${color}">${price.toFixed(id.includes('=X') ? 4 : 2)}</div>
-            <div class="change ${color}">
-                ${isUp ? '▲' : change < 0 ? '▼' : ''} ${Math.abs(change).toFixed(2)} (${Math.abs(pct).toFixed(2)}%)
-            </div>
-        `;
+                card.className = `card ${borderClass}`;
+                div.innerHTML = `
+                    <div class="price ${colorClass}">${d.price.toFixed(fixed)}</div>
+                    <div class="change ${colorClass}">
+                        ${sign} ${Math.abs(d.change).toFixed(fixed)} (${Math.abs(d.changePct).toFixed(2)}%)
+                    </div>
+                `;
 
-        // 簡單走勢線（昨收 → 現價）
-        const chartDiv = document.getElementById(`chart-${id}`);
-        const colorStroke = isUp ? '#ff4d4d' : (change < 0 ? '#00e676' : '#888');
-        chartDiv.innerHTML = `
-            <svg width="100%" height="55" viewBox="0 0 300 55" preserveAspectRatio="none">
-                <line x1="10" y1="45" x2="290" y2="10" stroke="${colorStroke}" stroke-width="3" stroke-linecap="round"/>
+                if (d.chartData && d.chartData.length > 1) {
+                    chartDiv.innerHTML = generateSVG(d.chartData, strokeClass);
+                } else {
+                    chartDiv.innerHTML = '<div style="font-size:10px; color:#555; padding-top:15px; text-align:center;">無足夠走勢數據</div>';
+                }
+
+            } else {
+                div.innerHTML = `<div style="font-size:12px; color:#ff5252;">${d.msg || '失敗'}</div>`;
+            }
+        });
+    }
+
+    function generateSVG(prices, strokeClass) {
+        const min = Math.min(...prices);
+        const max = Math.max(...prices);
+        const range = max - min || 1;
+        const width = 300; 
+        const height = 50; 
+        
+        const points = prices.map((p, index) => {
+            const x = (index / (prices.length - 1)) * width;
+            const y = height - ((p - min) / range) * height; 
+            return `${x},${y}`;
+        }).join(" ");
+
+        return `
+            <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+                <polyline points="${points}" class="line-path ${strokeClass}" />
             </svg>
         `;
+    }
+
+    function log(msg) {
+        debugLog.innerHTML += msg + "<br>";
+        const lines = debugLog.innerHTML.split("<br>");
+        if(lines.length > 6) debugLog.innerHTML = lines.slice(lines.length-6).join("<br>");
     }
 
     function updateClock() {
@@ -149,25 +264,25 @@
         document.getElementById('clock').innerText = now.toLocaleTimeString('zh-TW', {hour12:false});
         
         const day = now.getDay();
-        const min = now.getHours()*60 + now.getMinutes();
-        const isTrade = (day >=1 && day <=5 && min >=540 && min <=810);
+        const min = now.getHours() * 60 + now.getMinutes();
+        const isTrade = (day >= 1 && day <= 5 && min >= 540 && min <= 810);
         
         const badge = document.getElementById('status-badge');
-        if (isTrade) {
+        if(isTrade) {
             badge.className = 'status-badge live';
-            badge.innerText = '盤中即時';
+            badge.innerText = "盤中監控";
         } else {
             badge.className = 'status-badge sleep';
-            badge.innerText = '休息中';
+            badge.innerText = "休息中";
         }
+        return isTrade;
     }
 
-    // 啟動
     init();
-    fetchData();
-    setInterval(fetchData, 15000);
+    fetchData(); 
+    setInterval(() => { if(updateClock()) fetchData(); }, 15000); 
     setInterval(updateClock, 1000);
-    updateClock();
+
 </script>
 </body>
 </html>
