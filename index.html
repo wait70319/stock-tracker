@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>股市看板 (GitHub版)</title>
+    <title>股市看板 (優化版)</title>
     <style>
         body {
             background-color: #121212;
@@ -25,8 +25,8 @@
 
         .status-box { text-align: right; }
         .status-badge { 
-            display: inline-block; padding: 2px 6px; border-radius: 4px; 
-            font-size: 11px; font-weight: bold;
+            display: inline-block; padding: 3px 8px; border-radius: 4px; 
+            font-size: 11px; font-weight: bold; margin: 3px 0;
         }
         .live { background: #004d40; color: #00e676; border: 1px solid #00695c; }
         .sleep { background: #3e2723; color: #ff5252; border: 1px solid #4e342e; }
@@ -37,9 +37,10 @@
             padding: 12px 15px;
             margin-bottom: 10px;
             border-left: 5px solid #444;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
             display: flex;
             flex-direction: column;
+            transition: border-color 0.3s;
         }
 
         .card-top {
@@ -62,34 +63,38 @@
             height: 50px;
             margin-top: 10px;
             position: relative;
-            border-top: 1px solid #2a2a2a;
+            border-top: 1px dashed #2a2a2a;
             padding-top: 5px;
         }
         
         svg { width: 100%; height: 100%; overflow: visible; }
-        .line-path { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; }
+        /* 使用 round 讓線條轉折處更圓滑 */
+        .line-path { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 
         .up { color: #ff4d4d; }
         .down { color: #00e676; }
-        .neutral { color: #fff; }
+        .neutral { color: #aaa; }
         
         .up-border { border-left-color: #ff4d4d; }
         .down-border { border-left-color: #00e676; }
         
         .up-stroke { stroke: #ff4d4d; }
         .down-stroke { stroke: #00e676; }
-        .neutral-stroke { stroke: #888; }
+        .neutral-stroke { stroke: #aaa; }
 
         button {
-            background: #333; color: white; border: 1px solid #555;
+            background: #2c2c2c; color: #fff; border: 1px solid #555;
             padding: 6px 15px; border-radius: 20px; font-size: 12px;
-            margin-top: 5px; cursor: pointer;
+            cursor: pointer; transition: background 0.2s;
         }
+        button:hover { background: #444; }
+        button:active { background: #555; }
 
         #debug-log {
-            margin-top: 20px; font-size: 10px; color: #555; 
+            margin-top: 20px; font-size: 10px; color: #666; 
             border-top: 1px solid #333; padding-top: 10px;
             word-break: break-all;
+            height: 80px; overflow-y: auto;
         }
     </style>
 </head>
@@ -97,24 +102,23 @@
 
 <header>
     <div>
-        <h1 style="margin:0; font-size:18px;">股市看板 <span style="font-size:12px; font-weight:normal;">(含走勢)</span></h1>
-        <div style="font-size:11px; color:#888;">來源: Yahoo Finance</div>
+        <h1 style="margin:0; font-size:18px;">股市看板 <span style="font-size:12px; font-weight:normal; color:#888;">(優化版)</span></h1>
+        <div style="font-size:11px; color:#888; margin-top:2px;">來源: Yahoo Finance</div>
     </div>
     <div class="status-box">
-        <div id="clock" style="font-size:14px; font-weight:bold;">--:--:--</div>
-        <div id="status-badge" class="status-badge sleep">檢查中</div>
+        <div id="clock" style="font-size:14px; font-weight:bold; font-family:monospace;">--:--:--</div>
+        <div id="status-badge" class="status-badge sleep">系統初始化</div>
         <div><button onclick="fetchData()">⟳ 刷新</button></div>
     </div>
 </header>
 
 <div id="container">
-    <div style="text-align:center; padding:20px; color:#666;">初始化系統...</div>
+    <div style="text-align:center; padding:20px; color:#666;">載入追蹤清單中...</div>
 </div>
 
-<div id="debug-log">除錯日誌: <br></div>
+<div id="debug-log"><strong>除錯日誌:</strong><br></div>
 
 <script>
-    // === 追蹤清單 (GitHub版 - 已更新) ===
     const watchlist = [
         { id: '^TWII', name: '加權指數' },
         { id: '2383.TW', name: '2383 台光電' },
@@ -131,6 +135,19 @@
     const container = document.getElementById('container');
     const debugLog = document.getElementById('debug-log');
     
+    // 超時處理的 Fetch 函數
+    async function fetchWithTimeout(resource, options = {}) {
+        const { timeout = 8000 } = options; // 預設 8 秒超時
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        const response = await fetch(resource, {
+            ...options,
+            signal: controller.signal
+        });
+        clearTimeout(id);
+        return response;
+    }
+
     function init() {
         container.innerHTML = watchlist.map(item => `
             <div class="card" id="card-${item.id}">
@@ -139,8 +156,8 @@
                         <h2>${item.name}</h2>
                         <p>${item.id}</p>
                     </div>
-                    <div class="data">
-                        <div class="price" style="color:#666; font-size:14px;">更新中...</div>
+                    <div class="data" id="data-${item.id}">
+                        <div class="price" style="color:#666; font-size:14px;">等待更新...</div>
                     </div>
                 </div>
                 <div class="chart-area" id="chart-${item.id}"></div>
@@ -149,20 +166,19 @@
     }
 
     async function fetchData() {
-        log("開始更新...");
+        log(`[${new Date().toLocaleTimeString()}] 開始請求資料...`);
         const proxyBase = "https://corsproxy.io/?"; 
         
         const promises = watchlist.map(async (item) => {
             try {
-                // interval=5m 取得5分鐘線圖，range=1d 當日
                 const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${item.id}?interval=5m&range=1d&includePrePost=false&_=${Date.now()}`;
                 const finalUrl = proxyBase + encodeURIComponent(yahooUrl);
 
-                const res = await fetch(finalUrl);
+                const res = await fetchWithTimeout(finalUrl, { timeout: 8000 });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 
                 const json = await res.json();
-                if(!json.chart || !json.chart.result) throw new Error("無資料");
+                if(!json.chart || !json.chart.result) throw new Error("無效的資料格式");
 
                 const result = json.chart.result[0];
                 const meta = result.meta;
@@ -186,23 +202,24 @@
                 };
 
             } catch (e) {
-                return { id: item.id, success: false, msg: e.message };
+                // 如果是 AbortError 代表超時
+                const errorMsg = e.name === 'AbortError' ? '請求超時' : e.message;
+                return { id: item.id, success: false, msg: errorMsg };
             }
         });
 
         const results = await Promise.all(promises);
         render(results);
-        log("更新完成 (" + new Date().toLocaleTimeString() + ")");
+        log(`[${new Date().toLocaleTimeString()}] 資料更新完成`);
     }
 
     function render(data) {
         data.forEach(d => {
             const card = document.getElementById(`card-${d.id}`);
+            const dataDiv = document.getElementById(`data-${d.id}`);
             const chartDiv = document.getElementById(`chart-${d.id}`);
             if(!card) return;
 
-            const div = card.querySelector('.data');
-            
             if(d.success) {
                 const isUp = d.change > 0;
                 const isDown = d.change < 0;
@@ -214,7 +231,7 @@
                 const fixed = d.id.includes('=X') ? 4 : 2;
 
                 card.className = `card ${borderClass}`;
-                div.innerHTML = `
+                dataDiv.innerHTML = `
                     <div class="price ${colorClass}">${d.price.toFixed(fixed)}</div>
                     <div class="change ${colorClass}">
                         ${sign} ${Math.abs(d.change).toFixed(fixed)} (${Math.abs(d.changePct).toFixed(2)}%)
@@ -224,11 +241,12 @@
                 if (d.chartData && d.chartData.length > 1) {
                     chartDiv.innerHTML = generateSVG(d.chartData, strokeClass);
                 } else {
-                    chartDiv.innerHTML = '<div style="font-size:10px; color:#555; padding-top:15px; text-align:center;">無足夠走勢數據</div>';
+                    chartDiv.innerHTML = '<div style="font-size:11px; color:#555; padding-top:15px; text-align:center;">無走勢數據</div>';
                 }
-
             } else {
-                div.innerHTML = `<div style="font-size:12px; color:#ff5252;">${d.msg || '失敗'}</div>`;
+                // 若失敗，保留原本的報價，僅在走勢圖區域提示錯誤，避免 UI 閃爍或報價消失
+                chartDiv.innerHTML = `<div style="font-size:11px; color:#ff5252; padding-top:15px; text-align:center;">⚠ 抓取失敗: ${d.msg}</div>`;
+                log(`[錯誤] ${d.id}: ${d.msg}`);
             }
         });
     }
@@ -236,13 +254,20 @@
     function generateSVG(prices, strokeClass) {
         const min = Math.min(...prices);
         const max = Math.max(...prices);
-        const range = max - min || 1;
+        const range = max - min;
         const width = 300; 
         const height = 50; 
+        const padding = 6; // 上下預留空間，避免線條被切斷
+        const effectiveHeight = height - padding * 2;
         
         const points = prices.map((p, index) => {
             const x = (index / (prices.length - 1)) * width;
-            const y = height - ((p - min) / range) * height; 
+            let y;
+            if (range === 0) {
+                y = height / 2; // 開盤漲停或無波動時，線條置中
+            } else {
+                y = padding + effectiveHeight - ((p - min) / range) * effectiveHeight; 
+            }
             return `${x},${y}`;
         }).join(" ");
 
@@ -255,8 +280,8 @@
 
     function log(msg) {
         debugLog.innerHTML += msg + "<br>";
-        const lines = debugLog.innerHTML.split("<br>");
-        if(lines.length > 6) debugLog.innerHTML = lines.slice(lines.length-6).join("<br>");
+        // 保持日誌框在底部
+        debugLog.scrollTop = debugLog.scrollHeight;
     }
 
     function updateClock() {
@@ -270,7 +295,7 @@
         const badge = document.getElementById('status-badge');
         if(isTrade) {
             badge.className = 'status-badge live';
-            badge.innerText = "盤中監控";
+            badge.innerText = "● 盤中監控";
         } else {
             badge.className = 'status-badge sleep';
             badge.innerText = "休息中";
@@ -278,6 +303,7 @@
         return isTrade;
     }
 
+    // 啟動程序
     init();
     fetchData(); 
     setInterval(() => { if(updateClock()) fetchData(); }, 15000); 
