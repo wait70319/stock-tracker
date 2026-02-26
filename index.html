@@ -28,7 +28,12 @@
         .down-border { border-left-color: #00e676; }
         .last-update { font-size: 12px; color: #888; text-align: center; margin: 8px 0; }
         button { background: #333; color: white; border: 1px solid #555; padding: 6px 12px; border-radius: 20px; font-size: 12px; margin: 3px; cursor: pointer; }
-        #debug-log { display: none; margin-top: 20px; font-size: 10px; color: #555; border-top: 1px solid #333; padding-top: 10px; word-break: break-all; }
+        #debug-log { 
+            display: block; /* 預設永遠顯示 */
+            margin-top: 20px; font-size: 10px; color: #aaa; 
+            border-top: 1px solid #333; padding-top: 10px; 
+            word-break: break-all; background: #1a1a1a; padding: 10px; border-radius: 6px;
+        }
     </style>
 </head>
 <body>
@@ -41,8 +46,7 @@
         <div id="clock" style="font-size:14px; font-weight:bold;">--:--:--</div>
         <div id="status-badge" class="status-badge sleep">檢查中</div>
         <div>
-            <button onclick="toggleDebug()">除錯</button>
-            <button onclick="fetchData()">⟳ 刷新</button>
+            <button onclick="fetchData()">⟳ 手動刷新</button>
         </div>
     </div>
 </header>
@@ -50,10 +54,10 @@
 <div id="last-update" class="last-update">最後更新: --</div>
 
 <div id="container">
-    <div style="text-align:center; padding:60px 20px; color:#666; font-size:15px;">正在載入即時股市資料...</div>
+    <div style="text-align:center; padding:60px 20px; color:#666; font-size:15px;">正在載入即時資料...</div>
 </div>
 
-<div id="debug-log">除錯日誌:<br></div>
+<div id="debug-log">除錯日誌已開啟（下方會顯示詳細過程）<br></div>
 
 <script>
     const watchlist = [
@@ -69,9 +73,14 @@
         { id: 'JPYTWD=X', name: '日元/台幣' }
     ];
 
-    const proxyBase = "https://corsproxy.io/?";
+    const proxyBase = "https://api.allorigins.win/raw?url=";
     const container = document.getElementById('container');
     const debugLog = document.getElementById('debug-log');
+
+    function log(msg) {
+        debugLog.innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}<br>`;
+        debugLog.scrollTop = debugLog.scrollHeight;
+    }
 
     function isTWStock(id) { return id.endsWith('.TW') || id === '^TWII'; }
     function convertToMisSymbol(id) {
@@ -80,19 +89,7 @@
         return null;
     }
 
-    function log(msg) {
-        if (!debugLog) return;
-        debugLog.innerHTML += msg + "<br>";
-        const lines = debugLog.innerHTML.split("<br>");
-        if (lines.length > 10) debugLog.innerHTML = lines.slice(-10).join("<br>");
-    }
-
-    function toggleDebug() {
-        if (debugLog) debugLog.style.display = debugLog.style.display === 'none' ? 'block' : 'none';
-    }
-
     function init() {
-        if (!container) return;
         container.innerHTML = watchlist.map(item => `
             <div class="card" id="card-${item.id}">
                 <div class="card-top">
@@ -109,19 +106,21 @@
                 </div>
             </div>
         `).join('');
+        log("頁面初始化完成，準備抓取資料...");
     }
 
     async function fetchData() {
-        try {
-            log("開始更新...");
-            const twStocks = watchlist.filter(isTWStock);
-            const priceMap = new Map();
+        log("=== 開始抓取資料 ===");
+        const twStocks = watchlist.filter(isTWStock);
+        const priceMap = new Map();
 
-            // 台股價格用 mis.twse（超即時）
-            if (twStocks.length > 0) {
+        // === 台股價格 (mis.twse) ===
+        if (twStocks.length > 0) {
+            try {
                 const symbols = twStocks.map(item => convertToMisSymbol(item.id)).join('|');
                 const url = `https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=${symbols}&json=1&delay=0&_=${Date.now()}`;
                 const res = await fetch(proxyBase + encodeURIComponent(url));
+                log(`mis.twse 請求狀態: ${res.status}`);
                 if (res.ok) {
                     const json = await res.json();
                     json.msgArray.forEach(stock => {
@@ -129,62 +128,73 @@
                         const price = parseFloat(stock.z && stock.z.trim() !== '-' ? stock.z : stock.y) || 0;
                         const prev = parseFloat(stock.y) || price;
                         priceMap.set(id, { price, change: price - prev, changePct: prev ? (price - prev)/prev*100 : 0 });
+                        log(`✓ ${id} 價格更新成功`);
                     });
                 }
+            } catch (e) {
+                log(`❌ mis.twse 失敗: ${e.message}`);
             }
+        }
 
-            // 所有走勢圖用 Yahoo 5分鐘線
-            const chartPromises = watchlist.map(async item => {
-                try {
-                    const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${item.id}?interval=5m&range=1d&_=${Date.now()}`;
-                    const res = await fetch(proxyBase + encodeURIComponent(yahooUrl));
-                    if (!res.ok) throw new Error();
+        // === 走勢圖 (Yahoo 5分鐘線) ===
+        const chartPromises = watchlist.map(item => 
+            fetch(proxyBase + encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${item.id}?interval=5m&range=1d&_=${Date.now()}`))
+                .then(async res => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     const json = await res.json();
                     const quote = json.chart.result[0].indicators.quote[0];
                     let data = quote.close ? quote.close.filter(p => p != null) : [];
                     if (data.length < 2) data = [data[0]||0, data[0]||0];
                     return { id: item.id, chartData: data };
-                } catch (e) {
-                    log(`Chart ${item.id} 失敗`);
+                })
+                .catch(e => {
+                    log(`❌ Chart ${item.id} 失敗: ${e.message}`);
                     return { id: item.id, chartData: [] };
-                }
-            });
+                })
+        );
 
-            const chartResults = await Promise.all(chartPromises);
+        const chartResults = await Promise.allSettled(chartPromises);  // 重要：單檔失敗不卡全部
 
-            // 渲染
-            chartResults.forEach(chart => {
-                const card = document.getElementById(`card-${chart.id}`);
-                if (!card) return;
-                const priceInfo = priceMap.get(chart.id) || { price: chart.chartData[chart.chartData.length-1]||0, change: 0, changePct: 0 };
-                const div = card.querySelector('.data');
-                const chartDiv = document.getElementById(`chart-${chart.id}`);
+        // 渲染
+        chartResults.forEach((result, i) => {
+            const item = watchlist[i];
+            const card = document.getElementById(`card-${item.id}`);
+            if (!card) return;
 
-                const isUp = priceInfo.change > 0;
-                const colorClass = isUp ? 'up' : (priceInfo.change < 0 ? 'down' : 'neutral');
-                const strokeClass = isUp ? 'up-stroke' : (priceInfo.change < 0 ? 'down-stroke' : 'neutral-stroke');
-                const sign = isUp ? '▲' : (priceInfo.change < 0 ? '▼' : '');
-                const borderClass = isUp ? 'up-border' : (priceInfo.change < 0 ? 'down-border' : '');
+            const chart = result.status === 'fulfilled' ? result.value : { chartData: [] };
+            const priceInfo = priceMap.get(item.id) || { price: chart.chartData[chart.chartData.length-1] || 0, change: 0, changePct: 0 };
 
-                const fixed = chart.id.includes('=X') ? 4 : 2;
-                card.className = `card ${borderClass}`;
-                div.innerHTML = `
-                    <div class="price ${colorClass}">${priceInfo.price.toFixed(fixed)}</div>
-                    <div class="change ${colorClass}">${sign} ${Math.abs(priceInfo.change).toFixed(fixed)} (${Math.abs(priceInfo.changePct).toFixed(2)}%)</div>
-                `;
+            const div = card.querySelector('.data');
+            const chartDiv = document.getElementById(`chart-${item.id}`);
 
-                if (chart.chartData.length > 1) {
-                    chartDiv.innerHTML = generateSVG(chart.chartData, strokeClass);
-                }
-            });
+            if (priceInfo.price === 0 && chart.chartData.length === 0) {
+                div.innerHTML = `<div style="font-size:12px; color:#ff5252;">❌ 抓取失敗 (proxy問題)</div>`;
+                chartDiv.innerHTML = `<div style="font-size:10px; color:#555; padding-top:15px; text-align:center;">走勢無法載入</div>`;
+                return;
+            }
 
-            const lastUpdate = document.getElementById('last-update');
-            if (lastUpdate) lastUpdate.innerHTML = `最後更新: ${new Date().toLocaleTimeString('zh-TW')} (台北)`;
-            log(`更新完成 ${new Date().toLocaleTimeString()}`);
-        } catch (e) {
-            log('重大錯誤: ' + e.message);
-            console.error(e);
-        }
+            const isUp = priceInfo.change > 0;
+            const colorClass = isUp ? 'up' : (priceInfo.change < 0 ? 'down' : 'neutral');
+            const strokeClass = isUp ? 'up-stroke' : (priceInfo.change < 0 ? 'down-stroke' : 'neutral-stroke');
+            const sign = isUp ? '▲' : (priceInfo.change < 0 ? '▼' : '');
+            const borderClass = isUp ? 'up-border' : (priceInfo.change < 0 ? 'down-border' : '');
+
+            const fixed = item.id.includes('=X') ? 4 : 2;
+            card.className = `card ${borderClass}`;
+            div.innerHTML = `
+                <div class="price ${colorClass}">${priceInfo.price.toFixed(fixed)}</div>
+                <div class="change ${colorClass}">${sign} ${Math.abs(priceInfo.change).toFixed(fixed)} (${Math.abs(priceInfo.changePct).toFixed(2)}%)</div>
+            `;
+
+            if (chart.chartData.length > 1) {
+                chartDiv.innerHTML = generateSVG(chart.chartData, strokeClass);
+            } else {
+                chartDiv.innerHTML = `<div style="font-size:10px; color:#555; padding-top:15px; text-align:center;">走勢載入中...</div>`;
+            }
+        });
+
+        document.getElementById('last-update').innerHTML = `最後更新: ${new Date().toLocaleTimeString('zh-TW')} (台北)`;
+        log("✅ 全部更新完成！");
     }
 
     function generateSVG(prices, strokeClass) {
@@ -202,9 +212,7 @@
 
     function updateClock() {
         const now = new Date();
-        const clock = document.getElementById('clock');
-        if (clock) clock.innerText = now.toLocaleTimeString('zh-TW', { hour12: false });
-
+        document.getElementById('clock').innerText = now.toLocaleTimeString('zh-TW', { hour12: false });
         const day = now.getDay(), min = now.getHours()*60 + now.getMinutes();
         const isTrade = (day >= 1 && day <= 5 && min >= 540 && min <= 810);
         const badge = document.getElementById('status-badge');
@@ -217,7 +225,7 @@
     // 啟動
     init();
     fetchData();
-    setInterval(() => { if (updateClock()) fetchData(); }, 20000);
+    setInterval(() => { if (updateClock()) fetchData(); }, 15000);
     setInterval(updateClock, 1000);
 </script>
 </body>
