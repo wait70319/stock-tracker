@@ -13,7 +13,6 @@
             padding: 15px;
             font-size: 14px;
         }
-
         header {
             border-bottom: 1px solid #333;
             padding-bottom: 10px;
@@ -22,7 +21,6 @@
             justify-content: space-between;
             align-items: center;
         }
-
         .status-box { text-align: right; }
         .status-badge { 
             display: inline-block; padding: 3px 8px; border-radius: 4px; 
@@ -30,7 +28,6 @@
         }
         .live { background: #004d40; color: #00e676; border: 1px solid #00695c; }
         .sleep { background: #3e2723; color: #ff5252; border: 1px solid #4e342e; }
-
         .card {
             background-color: #1e1e1e;
             border-radius: 8px;
@@ -42,22 +39,17 @@
             flex-direction: column;
             transition: border-color 0.3s;
         }
-
         .card-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
             width: 100%;
         }
-
         .info h2 { margin: 0; font-size: 16px; color: #fff; }
         .info p { margin: 3px 0 0 0; font-size: 11px; color: #888; }
-
         .data { text-align: right; }
         .price { font-size: 19px; font-weight: bold; font-family: monospace; }
         .change { font-size: 13px; font-weight: 500; margin-top: 2px; }
-
-        /* 走勢圖容器 */
         .chart-area {
             width: 100%;
             height: 50px;
@@ -66,22 +58,16 @@
             border-top: 1px dashed #2a2a2a;
             padding-top: 5px;
         }
-        
         svg { width: 100%; height: 100%; overflow: visible; }
-        /* 使用 round 讓線條轉折處更圓滑 */
         .line-path { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
-
         .up { color: #ff4d4d; }
         .down { color: #00e676; }
         .neutral { color: #aaa; }
-        
         .up-border { border-left-color: #ff4d4d; }
         .down-border { border-left-color: #00e676; }
-        
         .up-stroke { stroke: #ff4d4d; }
         .down-stroke { stroke: #00e676; }
         .neutral-stroke { stroke: #aaa; }
-
         button {
             background: #2c2c2c; color: #fff; border: 1px solid #555;
             padding: 6px 15px; border-radius: 20px; font-size: 12px;
@@ -89,13 +75,85 @@
         }
         button:hover { background: #444; }
         button:active { background: #555; }
-
         #debug-log {
             margin-top: 20px; font-size: 10px; color: #666; 
             border-top: 1px solid #333; padding-top: 10px;
             word-break: break-all;
             height: 80px; overflow-y: auto;
         }
+
+        /* ── 關鍵價位 ── */
+        .key-levels-section {
+            margin-top: 10px;
+            border-top: 1px dashed #2a2a2a;
+            padding-top: 8px;
+        }
+        .key-levels-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .key-levels-title {
+            font-size: 11px;
+            color: #666;
+            font-weight: bold;
+            letter-spacing: 0.04em;
+        }
+        .btn-add-level {
+            background: transparent;
+            border: 1px dashed #444;
+            color: #888;
+            padding: 2px 9px;
+            border-radius: 12px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-add-level:hover { border-color: #4fc3f7; color: #4fc3f7; background: transparent; }
+        .levels-list { display: flex; flex-direction: column; gap: 4px; }
+        .level-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 7px;
+            border-radius: 5px;
+            background: #252525;
+            font-size: 12px;
+        }
+        .level-row.near-hit { background: #1c2b1c; outline: 1px solid #00e67655; }
+        .level-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .level-type { font-size: 11px; min-width: 28px; }
+        .level-note { font-size: 11px; color: #666; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .level-price-val { font-family: monospace; font-weight: bold; font-size: 12px; min-width: 62px; text-align: right; }
+        .level-dist-val { font-size: 10px; color: #666; min-width: 52px; text-align: right; }
+        .btn-del-level {
+            background: transparent; border: none; color: #444;
+            font-size: 12px; cursor: pointer; padding: 0 2px; border-radius: 3px; line-height: 1;
+            transition: color 0.15s;
+        }
+        .btn-del-level:hover { color: #ff5252; background: transparent; }
+
+        /* 新增表單 */
+        .add-level-form {
+            display: none;
+            gap: 5px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .add-level-form.open { display: flex; }
+        .add-level-form input, .add-level-form select {
+            background: #1a1a1a; border: 1px solid #444; border-radius: 5px;
+            color: #e0e0e0; font-size: 11px; padding: 4px 7px; outline: none; transition: border-color 0.2s;
+        }
+        .add-level-form input:focus, .add-level-form select:focus { border-color: #4fc3f7; }
+        .input-price { width: 80px; }
+        .input-note  { flex: 1; min-width: 70px; }
+        .btn-ok { background: #1565c0; border: none; border-radius: 5px; color: #fff; font-size: 11px; padding: 4px 10px; cursor: pointer; }
+        .btn-ok:hover { background: #1976d2; }
+        .btn-cancel-form { background: #2c2c2c; border: 1px solid #555; border-radius: 5px; color: #aaa; font-size: 11px; padding: 4px 10px; cursor: pointer; }
+        .input-error { border-color: #ff5252 !important; }
     </style>
 </head>
 <body>
@@ -108,7 +166,7 @@
     <div class="status-box">
         <div id="clock" style="font-size:14px; font-weight:bold; font-family:monospace;">--:--:--</div>
         <div id="status-badge" class="status-badge sleep">系統初始化</div>
-        <div><button onclick="fetchData()">⟳ 刷新</button></div>
+        <div><button onclick="fetchData()">&#x21BB; 刷新</button></div>
     </div>
 </header>
 
@@ -120,34 +178,130 @@
 
 <script>
     const watchlist = [
-        { id: '^TWII', name: '加權指數' },
-        { id: '2383.TW', name: '2383 台光電' },
-        { id: '00989A.TW', name: '00989A 摩根美國科技' },
-        { id: '00982A.TW', name: '00982A 群益台灣強棒' },
-        { id: '00949.TW', name: '00949 復華日本龍頭' },
-        { id: '009805.TW', name: '009805 新光美國電力基建息收' },
-        { id: '00919.TW', name: '00919 群益精選高息' },
-        { id: '00923.TW', name: '00923 群益ESG低碳' },
-        { id: 'JPY=X', name: '美元/日元' },
-        { id: 'JPYTWD=X', name: '日元/台幣' }
+        { id: '^TWII',      name: '加權指數' },
+        { id: '2383.TW',    name: '2383 台光電' },
+        { id: '00989A.TW',  name: '00989A 摩根美國科技' },
+        { id: '00982A.TW',  name: '00982A 群益台灣強棒' },
+        { id: '00949.TW',   name: '00949 復華日本龍頭' },
+        { id: '009805.TW',  name: '009805 新光美國電力基建息收' },
+        { id: '00919.TW',   name: '00919 群益精選高息' },
+        { id: '00923.TW',   name: '00923 群益ESG低碳' },
+        { id: 'JPY=X',      name: '美元/日元' },
+        { id: 'JPYTWD=X',   name: '日元/台幣' }
     ];
 
     const container = document.getElementById('container');
-    const debugLog = document.getElementById('debug-log');
-    
-    // 超時處理的 Fetch 函數
+    const debugLog  = document.getElementById('debug-log');
+
+    // ── 關鍵價位 localStorage ──
+    const LS_PRE = 'kpl2_';
+    function loadLevels(id)      { try { return JSON.parse(localStorage.getItem(LS_PRE + id) || '[]'); } catch { return []; } }
+    function saveLevels(id, arr) { localStorage.setItem(LS_PRE + id, JSON.stringify(arr)); }
+
+    const TYPE_COLOR = { '支撐':'#00e676', '壓力':'#ff4d4d', '目標':'#4fc3f7', '停損':'#ffb300', '注意':'#ce93d8' };
+    function typeColor(t) { return TYPE_COLOR[t] || '#888'; }
+    function fixedFor(id) { return id.includes('=X') ? 4 : 2; }
+
+    const priceCache = {};
+
+    // ── fetchWithTimeout ──
     async function fetchWithTimeout(resource, options = {}) {
-        const { timeout = 8000 } = options; // 預設 8 秒超時
-        const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), timeout);
-        const response = await fetch(resource, {
-            ...options,
-            signal: controller.signal
-        });
-        clearTimeout(id);
-        return response;
+        const { timeout = 8000 } = options;
+        const ctrl = new AbortController();
+        const tid  = setTimeout(() => ctrl.abort(), timeout);
+        const res  = await fetch(resource, { ...options, signal: ctrl.signal });
+        clearTimeout(tid);
+        return res;
     }
 
+    // ── 關鍵價位 section HTML ──
+    function buildKLS(id, currentPrice) {
+        const levels = loadLevels(id);
+        const fd     = fixedFor(id);
+        const rowsHTML = levels.length === 0
+            ? '<div style="font-size:11px;color:#555;padding:2px 0">尚無關鍵價位，點右上角新增</div>'
+            : levels.map((lv, i) => {
+                const col  = typeColor(lv.type);
+                let dist   = '';
+                if (currentPrice != null) {
+                    const pct  = (lv.price - currentPrice) / currentPrice * 100;
+                    dist = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+                }
+                const near = currentPrice != null && Math.abs(lv.price - currentPrice) / currentPrice < 0.01;
+                return `<div class="level-row${near ? ' near-hit' : ''}">
+                    <div class="level-dot" style="background:${col}"></div>
+                    <span class="level-type" style="color:${col}">${lv.type}</span>
+                    <span class="level-note">${lv.note || ''}</span>
+                    <span class="level-price-val" style="color:${col}">${lv.price.toFixed(fd)}</span>
+                    <span class="level-dist-val">${dist}</span>
+                    <button class="btn-del-level" onclick="delLevel('${id}',${i})" title="刪除">&#x2715;</button>
+                </div>`;
+            }).join('');
+
+        return `<div class="key-levels-section" id="kls-${id}">
+            <div class="key-levels-header">
+                <span class="key-levels-title">🎯 關鍵價位</span>
+                <button class="btn-add-level" onclick="toggleForm('${id}')">＋ 新增</button>
+            </div>
+            <div class="levels-list" id="ll-${id}">${rowsHTML}</div>
+            <div class="add-level-form" id="alf-${id}">
+                <input class="input-price" id="alp-${id}" type="number" step="0.0001" placeholder="價格" />
+                <select id="alt-${id}">
+                    <option>支撐</option><option>壓力</option><option>目標</option><option>停損</option><option>注意</option>
+                </select>
+                <input class="input-note" id="aln-${id}" type="text" placeholder="備註(選填)" />
+                <button class="btn-ok" onclick="confirmAdd('${id}')">確認</button>
+                <button class="btn-cancel-form" onclick="toggleForm('${id}')">取消</button>
+            </div>
+        </div>`;
+    }
+
+    function toggleForm(id) {
+        const form = document.getElementById('alf-' + id);
+        const opening = !form.classList.contains('open');
+        form.classList.toggle('open');
+        if (opening) {
+            document.getElementById('alp-' + id).focus();
+        } else {
+            document.getElementById('alp-' + id).value = '';
+            document.getElementById('aln-' + id).value = '';
+        }
+    }
+
+    function confirmAdd(id) {
+        const priceEl = document.getElementById('alp-' + id);
+        const val = parseFloat(priceEl.value);
+        if (isNaN(val) || val <= 0) {
+            priceEl.classList.add('input-error');
+            setTimeout(() => priceEl.classList.remove('input-error'), 1000);
+            return;
+        }
+        const type = document.getElementById('alt-' + id).value;
+        const note = document.getElementById('aln-' + id).value.trim();
+        const levels = loadLevels(id);
+        levels.push({ price: val, type, note });
+        levels.sort((a, b) => b.price - a.price);
+        saveLevels(id, levels);
+        toggleForm(id);
+        refreshKLS(id);
+    }
+
+    function delLevel(id, idx) {
+        const levels = loadLevels(id);
+        levels.splice(idx, 1);
+        saveLevels(id, levels);
+        refreshKLS(id);
+    }
+
+    function refreshKLS(id) {
+        const old = document.getElementById('kls-' + id);
+        if (!old) return;
+        const tmp = document.createElement('div');
+        tmp.innerHTML = buildKLS(id, priceCache[id] != null ? priceCache[id] : null);
+        old.replaceWith(tmp.firstElementChild);
+    }
+
+    // ── 初始化骨架 ──
     function init() {
         container.innerHTML = watchlist.map(item => `
             <div class="card" id="card-${item.id}">
@@ -161,53 +315,33 @@
                     </div>
                 </div>
                 <div class="chart-area" id="chart-${item.id}"></div>
+                ${buildKLS(item.id, null)}
             </div>
         `).join('');
     }
 
+    // ── 抓取 ──
     async function fetchData() {
         log(`[${new Date().toLocaleTimeString()}] 開始請求資料...`);
-        const proxyBase = "https://corsproxy.io/?"; 
-        
+        const proxyBase = "https://corsproxy.io/?";
         const promises = watchlist.map(async (item) => {
             try {
                 const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${item.id}?interval=5m&range=1d&includePrePost=false&_=${Date.now()}`;
-                const finalUrl = proxyBase + encodeURIComponent(yahooUrl);
-
-                const res = await fetchWithTimeout(finalUrl, { timeout: 8000 });
+                const res = await fetchWithTimeout(proxyBase + encodeURIComponent(yahooUrl), { timeout: 8000 });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                
                 const json = await res.json();
-                if(!json.chart || !json.chart.result) throw new Error("無效的資料格式");
-
+                if (!json.chart || !json.chart.result) throw new Error("無效的資料格式");
                 const result = json.chart.result[0];
-                const meta = result.meta;
-                const quote = result.indicators.quote[0];
-                
-                const price = meta.regularMarketPrice;
-                const prevClose = meta.chartPreviousClose;
-                
-                let chartData = [];
-                if (quote.close) {
-                    chartData = quote.close.filter(p => p !== null && p !== undefined);
-                }
-
-                return {
-                    id: item.id,
-                    price: price,
-                    change: price - prevClose,
-                    changePct: (price - prevClose) / prevClose * 100,
-                    chartData: chartData,
-                    success: true
-                };
-
+                const meta   = result.meta;
+                const quote  = result.indicators.quote[0];
+                const price  = meta.regularMarketPrice;
+                const prev   = meta.chartPreviousClose;
+                const chartData = (quote.close || []).filter(p => p != null);
+                return { id: item.id, price, change: price - prev, changePct: (price - prev) / prev * 100, chartData, success: true };
             } catch (e) {
-                // 如果是 AbortError 代表超時
-                const errorMsg = e.name === 'AbortError' ? '請求超時' : e.message;
-                return { id: item.id, success: false, msg: errorMsg };
+                return { id: item.id, success: false, msg: e.name === 'AbortError' ? '請求超時' : e.message };
             }
         });
-
         const results = await Promise.all(promises);
         render(results);
         log(`[${new Date().toLocaleTimeString()}] 資料更新完成`);
@@ -215,100 +349,67 @@
 
     function render(data) {
         data.forEach(d => {
-            const card = document.getElementById(`card-${d.id}`);
-            const dataDiv = document.getElementById(`data-${d.id}`);
+            const card     = document.getElementById(`card-${d.id}`);
+            const dataDiv  = document.getElementById(`data-${d.id}`);
             const chartDiv = document.getElementById(`chart-${d.id}`);
-            if(!card) return;
-
-            if(d.success) {
-                const isUp = d.change > 0;
-                const isDown = d.change < 0;
-                const colorClass = isUp ? 'up' : (isDown ? 'down' : 'neutral');
-                const strokeClass = isUp ? 'up-stroke' : (isDown ? 'down-stroke' : 'neutral-stroke');
-                const sign = isUp ? '▲' : (isDown ? '▼' : '');
-                const borderClass = isUp ? 'up-border' : (isDown ? 'down-border' : '');
-                
-                const fixed = d.id.includes('=X') ? 4 : 2;
-
-                card.className = `card ${borderClass}`;
+            if (!card) return;
+            if (d.success) {
+                priceCache[d.id] = d.price;
+                const isUp   = d.change > 0, isDown = d.change < 0;
+                const cc  = isUp ? 'up'         : (isDown ? 'down'        : 'neutral');
+                const sc  = isUp ? 'up-stroke'  : (isDown ? 'down-stroke' : 'neutral-stroke');
+                const sign = isUp ? '▲'          : (isDown ? '▼'           : '');
+                const bc  = isUp ? 'up-border'  : (isDown ? 'down-border'  : '');
+                const fd  = fixedFor(d.id);
+                card.className = `card ${bc}`;
                 dataDiv.innerHTML = `
-                    <div class="price ${colorClass}">${d.price.toFixed(fixed)}</div>
-                    <div class="change ${colorClass}">
-                        ${sign} ${Math.abs(d.change).toFixed(fixed)} (${Math.abs(d.changePct).toFixed(2)}%)
-                    </div>
+                    <div class="price ${cc}">${d.price.toFixed(fd)}</div>
+                    <div class="change ${cc}">${sign} ${Math.abs(d.change).toFixed(fd)} (${Math.abs(d.changePct).toFixed(2)}%)</div>
                 `;
-
-                if (d.chartData && d.chartData.length > 1) {
-                    chartDiv.innerHTML = generateSVG(d.chartData, strokeClass);
-                } else {
-                    chartDiv.innerHTML = '<div style="font-size:11px; color:#555; padding-top:15px; text-align:center;">無走勢數據</div>';
-                }
+                chartDiv.innerHTML = (d.chartData && d.chartData.length > 1)
+                    ? generateSVG(d.chartData, sc)
+                    : '<div style="font-size:11px;color:#555;padding-top:15px;text-align:center;">無走勢數據</div>';
+                refreshKLS(d.id);
             } else {
-                // 若失敗，保留原本的報價，僅在走勢圖區域提示錯誤，避免 UI 閃爍或報價消失
-                chartDiv.innerHTML = `<div style="font-size:11px; color:#ff5252; padding-top:15px; text-align:center;">⚠ 抓取失敗: ${d.msg}</div>`;
+                chartDiv.innerHTML = `<div style="font-size:11px;color:#ff5252;padding-top:15px;text-align:center;">⚠ 抓取失敗: ${d.msg}</div>`;
                 log(`[錯誤] ${d.id}: ${d.msg}`);
             }
         });
     }
 
     function generateSVG(prices, strokeClass) {
-        const min = Math.min(...prices);
-        const max = Math.max(...prices);
-        const range = max - min;
-        const width = 300; 
-        const height = 50; 
-        const padding = 6; // 上下預留空間，避免線條被切斷
-        const effectiveHeight = height - padding * 2;
-        
-        const points = prices.map((p, index) => {
-            const x = (index / (prices.length - 1)) * width;
-            let y;
-            if (range === 0) {
-                y = height / 2; // 開盤漲停或無波動時，線條置中
-            } else {
-                y = padding + effectiveHeight - ((p - min) / range) * effectiveHeight; 
-            }
+        const min = Math.min(...prices), max = Math.max(...prices), range = max - min;
+        const W = 300, H = 50, pad = 6, effH = H - pad * 2;
+        const points = prices.map((p, i) => {
+            const x = (i / (prices.length - 1)) * W;
+            const y = range === 0 ? H / 2 : pad + effH - ((p - min) / range) * effH;
             return `${x},${y}`;
-        }).join(" ");
-
-        return `
-            <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
-                <polyline points="${points}" class="line-path ${strokeClass}" />
-            </svg>
-        `;
+        }).join(' ');
+        return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+                    <polyline points="${points}" class="line-path ${strokeClass}" />
+                </svg>`;
     }
 
     function log(msg) {
-        debugLog.innerHTML += msg + "<br>";
-        // 保持日誌框在底部
+        debugLog.innerHTML += msg + '<br>';
         debugLog.scrollTop = debugLog.scrollHeight;
     }
 
     function updateClock() {
         const now = new Date();
-        document.getElementById('clock').innerText = now.toLocaleTimeString('zh-TW', {hour12:false});
-        
-        const day = now.getDay();
-        const min = now.getHours() * 60 + now.getMinutes();
+        document.getElementById('clock').innerText = now.toLocaleTimeString('zh-TW', { hour12: false });
+        const day = now.getDay(), min = now.getHours() * 60 + now.getMinutes();
         const isTrade = (day >= 1 && day <= 5 && min >= 540 && min <= 810);
-        
         const badge = document.getElementById('status-badge');
-        if(isTrade) {
-            badge.className = 'status-badge live';
-            badge.innerText = "● 盤中監控";
-        } else {
-            badge.className = 'status-badge sleep';
-            badge.innerText = "休息中";
-        }
+        badge.className = 'status-badge ' + (isTrade ? 'live' : 'sleep');
+        badge.innerText  = isTrade ? '● 盤中監控' : '休息中';
         return isTrade;
     }
 
-    // 啟動程序
     init();
-    fetchData(); 
-    setInterval(() => { if(updateClock()) fetchData(); }, 15000); 
+    fetchData();
+    setInterval(() => { if (updateClock()) fetchData(); }, 15000);
     setInterval(updateClock, 1000);
-
 </script>
 </body>
 </html>
