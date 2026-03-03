@@ -22,11 +22,11 @@
             align-items: center;
         }
         .status-box { text-align: right; }
-        .status-badge { 
-            display: inline-block; padding: 3px 8px; border-radius: 4px; 
+        .status-badge {
+            display: inline-block; padding: 3px 8px; border-radius: 4px;
             font-size: 11px; font-weight: bold; margin: 3px 0;
         }
-        .live { background: #004d40; color: #00e676; border: 1px solid #00695c; }
+        .live  { background: #004d40; color: #00e676; border: 1px solid #00695c; }
         .sleep { background: #3e2723; color: #ff5252; border: 1px solid #4e342e; }
         .card {
             background-color: #1e1e1e;
@@ -46,80 +46,64 @@
             width: 100%;
         }
         .info h2 { margin: 0; font-size: 16px; color: #fff; }
-        .info p { margin: 3px 0 0 0; font-size: 11px; color: #888; }
+        .info p  { margin: 3px 0 0 0; font-size: 11px; color: #888; }
         .data { text-align: right; }
-        .price { font-size: 19px; font-weight: bold; font-family: monospace; }
+        .price  { font-size: 19px; font-weight: bold; font-family: monospace; }
         .change { font-size: 13px; font-weight: 500; margin-top: 2px; }
         .chart-area {
-            width: 100%;
-            height: 50px;
-            margin-top: 10px;
-            position: relative;
-            border-top: 1px dashed #2a2a2a;
-            padding-top: 5px;
+            width: 100%; height: 50px; margin-top: 10px;
+            position: relative; border-top: 1px dashed #2a2a2a; padding-top: 5px;
         }
         svg { width: 100%; height: 100%; overflow: visible; }
         .line-path { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
-        .up { color: #ff4d4d; }
-        .down { color: #00e676; }
-        .neutral { color: #aaa; }
-        .up-border { border-left-color: #ff4d4d; }
-        .down-border { border-left-color: #00e676; }
-        .up-stroke { stroke: #ff4d4d; }
-        .down-stroke { stroke: #00e676; }
-        .neutral-stroke { stroke: #aaa; }
+        .up { color: #ff4d4d; } .down { color: #00e676; } .neutral { color: #aaa; }
+        .up-border { border-left-color: #ff4d4d; } .down-border { border-left-color: #00e676; }
+        .up-stroke { stroke: #ff4d4d; } .down-stroke { stroke: #00e676; } .neutral-stroke { stroke: #aaa; }
         button {
             background: #2c2c2c; color: #fff; border: 1px solid #555;
             padding: 6px 15px; border-radius: 20px; font-size: 12px;
             cursor: pointer; transition: background 0.2s;
         }
-        button:hover { background: #444; }
-        button:active { background: #555; }
+        button:hover { background: #444; } button:active { background: #555; }
         #debug-log {
-            margin-top: 20px; font-size: 10px; color: #666; 
+            margin-top: 20px; font-size: 10px; color: #666;
             border-top: 1px solid #333; padding-top: 10px;
-            word-break: break-all;
-            height: 80px; overflow-y: auto;
+            word-break: break-all; height: 80px; overflow-y: auto;
         }
 
-        /* ── 關鍵價位 ── */
-        .key-levels-section {
-            margin-top: 10px;
-            border-top: 1px dashed #2a2a2a;
-            padding-top: 8px;
+        /* 同步網址列 */
+        .share-bar {
+            background: #0d1b2a; border: 1px solid #1a3a5c;
+            border-radius: 8px; padding: 10px 14px; margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
         }
-        .key-levels-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
+        .share-label { font-size: 11px; color: #4fc3f7; font-weight: bold; white-space: nowrap; }
+        .share-url {
+            flex: 1; min-width: 0; background: #111; border: 1px solid #2a2a2a;
+            border-radius: 5px; color: #888; font-size: 10px; padding: 5px 8px;
+            font-family: monospace; white-space: nowrap; overflow: hidden;
+            text-overflow: ellipsis; cursor: text; user-select: all;
         }
-        .key-levels-title {
-            font-size: 11px;
-            color: #666;
-            font-weight: bold;
-            letter-spacing: 0.04em;
+        .btn-copy {
+            background: #1565c0; border: none; color: #fff;
+            padding: 5px 14px; border-radius: 5px; font-size: 11px; cursor: pointer; white-space: nowrap;
         }
+        .btn-copy:hover { background: #1976d2; } .btn-copy.copied { background: #2e7d32; }
+        .share-hint { font-size: 10px; color: #555; width: 100%; margin-top: 2px; }
+
+        /* 關鍵價位 */
+        .key-levels-section { margin-top: 10px; border-top: 1px dashed #2a2a2a; padding-top: 8px; }
+        .key-levels-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .key-levels-title { font-size: 11px; color: #666; font-weight: bold; }
         .btn-add-level {
-            background: transparent;
-            border: 1px dashed #444;
-            color: #888;
-            padding: 2px 9px;
-            border-radius: 12px;
-            font-size: 11px;
-            cursor: pointer;
-            transition: all 0.2s;
+            background: transparent; border: 1px dashed #444; color: #888;
+            padding: 2px 9px; border-radius: 12px; font-size: 11px; cursor: pointer; transition: all 0.2s;
         }
         .btn-add-level:hover { border-color: #4fc3f7; color: #4fc3f7; background: transparent; }
         .levels-list { display: flex; flex-direction: column; gap: 4px; }
         .level-row {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 7px;
-            border-radius: 5px;
-            background: #252525;
-            font-size: 12px;
+            display: flex; align-items: center; gap: 6px;
+            padding: 4px 7px; border-radius: 5px; background: #252525; font-size: 12px;
         }
         .level-row.near-hit { background: #1c2b1c; outline: 1px solid #00e67655; }
         .level-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
@@ -129,27 +113,17 @@
         .level-dist-val { font-size: 10px; color: #666; min-width: 52px; text-align: right; }
         .btn-del-level {
             background: transparent; border: none; color: #444;
-            font-size: 12px; cursor: pointer; padding: 0 2px; border-radius: 3px; line-height: 1;
-            transition: color 0.15s;
+            font-size: 12px; cursor: pointer; padding: 0 2px; line-height: 1; transition: color 0.15s;
         }
         .btn-del-level:hover { color: #ff5252; background: transparent; }
-
-        /* 新增表單 */
-        .add-level-form {
-            display: none;
-            gap: 5px;
-            margin-top: 6px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
+        .add-level-form { display: none; gap: 5px; margin-top: 6px; flex-wrap: wrap; align-items: center; }
         .add-level-form.open { display: flex; }
         .add-level-form input, .add-level-form select {
             background: #1a1a1a; border: 1px solid #444; border-radius: 5px;
             color: #e0e0e0; font-size: 11px; padding: 4px 7px; outline: none; transition: border-color 0.2s;
         }
         .add-level-form input:focus, .add-level-form select:focus { border-color: #4fc3f7; }
-        .input-price { width: 80px; }
-        .input-note  { flex: 1; min-width: 70px; }
+        .input-price { width: 80px; } .input-note { flex: 1; min-width: 70px; }
         .btn-ok { background: #1565c0; border: none; border-radius: 5px; color: #fff; font-size: 11px; padding: 4px 10px; cursor: pointer; }
         .btn-ok:hover { background: #1976d2; }
         .btn-cancel-form { background: #2c2c2c; border: 1px solid #555; border-radius: 5px; color: #aaa; font-size: 11px; padding: 4px 10px; cursor: pointer; }
@@ -169,6 +143,14 @@
         <div><button onclick="fetchData()">&#x21BB; 刷新</button></div>
     </div>
 </header>
+
+<!-- 同步網址列 -->
+<div class="share-bar">
+    <span class="share-label">&#x1F517; 跨裝置同步</span>
+    <div class="share-url" id="shareUrl">（尚未設定任何關鍵價位）</div>
+    <button class="btn-copy" id="btnCopy" onclick="copyUrl()">複製網址</button>
+    <div class="share-hint">新增關鍵價位後，複製網址傳到手機開啟，即可同步全部設定 ✓</div>
+</div>
 
 <div id="container">
     <div style="text-align:center; padding:20px; color:#666;">載入追蹤清單中...</div>
@@ -193,41 +175,80 @@
     const container = document.getElementById('container');
     const debugLog  = document.getElementById('debug-log');
 
-    // ── 關鍵價位 localStorage ──
-    const LS_PRE = 'kpl2_';
-    function loadLevels(id)      { try { return JSON.parse(localStorage.getItem(LS_PRE + id) || '[]'); } catch { return []; } }
-    function saveLevels(id, arr) { localStorage.setItem(LS_PRE + id, JSON.stringify(arr)); }
+    // ── 關鍵價位存在記憶體，同步寫入 URL hash ──────────
+    let allLevels = {};
 
-    const TYPE_COLOR = { '支撐':'#00e676', '壓力':'#ff4d4d', '目標':'#4fc3f7', '停損':'#ffb300', '注意':'#ce93d8' };
-    function typeColor(t) { return TYPE_COLOR[t] || '#888'; }
-    function fixedFor(id) { return id.includes('=X') ? 4 : 2; }
+    function loadFromURL() {
+        try {
+            const hash = location.hash.slice(1);
+            if (!hash) return;
+            const obj = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(hash)))));
+            if (obj && typeof obj === 'object') allLevels = obj;
+        } catch (e) {}
+    }
 
+    function saveToURL() {
+        try {
+            const encoded = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(allLevels)))));
+            history.replaceState(null, '', location.pathname + location.search + '#' + encoded);
+        } catch (e) {}
+        updateShareBar();
+    }
+
+    function loadLevels(id)      { return allLevels[id] || []; }
+    function saveLevels(id, arr) {
+        if (arr.length === 0) delete allLevels[id];
+        else allLevels[id] = arr;
+        saveToURL();
+    }
+
+    // ── 同步網址列 ──────────────────────────────────────
+    function updateShareBar() {
+        const hasAny = Object.values(allLevels).some(a => a.length > 0);
+        document.getElementById('shareUrl').textContent = hasAny ? location.href : '（尚未設定任何關鍵價位）';
+    }
+
+    function copyUrl() {
+        const hasAny = Object.values(allLevels).some(a => a.length > 0);
+        if (!hasAny) { alert('請先新增至少一個關鍵價位！'); return; }
+        navigator.clipboard.writeText(location.href).then(() => {
+            const b = document.getElementById('btnCopy');
+            b.textContent = '✓ 已複製！'; b.classList.add('copied');
+            setTimeout(() => { b.textContent = '複製網址'; b.classList.remove('copied'); }, 2500);
+        }).catch(() => {
+            const el = document.getElementById('shareUrl');
+            const r  = document.createRange();
+            r.selectNodeContents(el);
+            getSelection().removeAllRanges();
+            getSelection().addRange(r);
+        });
+    }
+
+    // ── 工具函數 ────────────────────────────────────────
+    const TYPE_COLOR = { '支撐':'#00e676','壓力':'#ff4d4d','目標':'#4fc3f7','停損':'#ffb300','注意':'#ce93d8' };
+    const typeColor = t => TYPE_COLOR[t] || '#888';
+    const fixedFor  = id => id.includes('=X') ? 4 : 2;
     const priceCache = {};
 
-    // ── fetchWithTimeout ──
     async function fetchWithTimeout(resource, options = {}) {
         const { timeout = 8000 } = options;
         const ctrl = new AbortController();
         const tid  = setTimeout(() => ctrl.abort(), timeout);
         const res  = await fetch(resource, { ...options, signal: ctrl.signal });
-        clearTimeout(tid);
-        return res;
+        clearTimeout(tid); return res;
     }
 
-    // ── 關鍵價位 section HTML ──
-    function buildKLS(id, currentPrice) {
+    // ── 關鍵價位 HTML ───────────────────────────────────
+    function buildKLS(id, cur) {
         const levels = loadLevels(id);
-        const fd     = fixedFor(id);
+        const fd = fixedFor(id);
         const rowsHTML = levels.length === 0
             ? '<div style="font-size:11px;color:#555;padding:2px 0">尚無關鍵價位，點右上角新增</div>'
             : levels.map((lv, i) => {
                 const col  = typeColor(lv.type);
-                let dist   = '';
-                if (currentPrice != null) {
-                    const pct  = (lv.price - currentPrice) / currentPrice * 100;
-                    dist = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
-                }
-                const near = currentPrice != null && Math.abs(lv.price - currentPrice) / currentPrice < 0.01;
+                const pct  = cur != null ? (lv.price - cur) / cur * 100 : null;
+                const dist = pct != null ? (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%' : '';
+                const near = cur != null && Math.abs(lv.price - cur) / cur < 0.01;
                 return `<div class="level-row${near ? ' near-hit' : ''}">
                     <div class="level-dot" style="background:${col}"></div>
                     <span class="level-type" style="color:${col}">${lv.type}</span>
@@ -240,10 +261,10 @@
 
         return `<div class="key-levels-section" id="kls-${id}">
             <div class="key-levels-header">
-                <span class="key-levels-title">🎯 關鍵價位</span>
+                <span class="key-levels-title">&#x1F3AF; 關鍵價位</span>
                 <button class="btn-add-level" onclick="toggleForm('${id}')">＋ 新增</button>
             </div>
-            <div class="levels-list" id="ll-${id}">${rowsHTML}</div>
+            <div class="levels-list">${rowsHTML}</div>
             <div class="add-level-form" id="alf-${id}">
                 <input class="input-price" id="alp-${id}" type="number" step="0.0001" placeholder="價格" />
                 <select id="alt-${id}">
@@ -257,39 +278,38 @@
     }
 
     function toggleForm(id) {
-        const form = document.getElementById('alf-' + id);
-        const opening = !form.classList.contains('open');
-        form.classList.toggle('open');
-        if (opening) {
-            document.getElementById('alp-' + id).focus();
-        } else {
+        const f = document.getElementById('alf-' + id);
+        const opening = !f.classList.contains('open');
+        f.classList.toggle('open');
+        if (opening) document.getElementById('alp-' + id).focus();
+        else {
             document.getElementById('alp-' + id).value = '';
             document.getElementById('aln-' + id).value = '';
         }
     }
 
     function confirmAdd(id) {
-        const priceEl = document.getElementById('alp-' + id);
-        const val = parseFloat(priceEl.value);
+        const el  = document.getElementById('alp-' + id);
+        const val = parseFloat(el.value);
         if (isNaN(val) || val <= 0) {
-            priceEl.classList.add('input-error');
-            setTimeout(() => priceEl.classList.remove('input-error'), 1000);
+            el.classList.add('input-error');
+            setTimeout(() => el.classList.remove('input-error'), 1000);
             return;
         }
         const type = document.getElementById('alt-' + id).value;
         const note = document.getElementById('aln-' + id).value.trim();
-        const levels = loadLevels(id);
-        levels.push({ price: val, type, note });
-        levels.sort((a, b) => b.price - a.price);
-        saveLevels(id, levels);
+        const arr  = loadLevels(id);
+        arr.push({ price: val, type, note });
+        arr.sort((a, b) => b.price - a.price);
+        saveLevels(id, arr);
         toggleForm(id);
         refreshKLS(id);
     }
 
     function delLevel(id, idx) {
-        const levels = loadLevels(id);
-        levels.splice(idx, 1);
-        saveLevels(id, levels);
+        const arr = loadLevels(id);
+        arr.splice(idx, 1);
+        saveLevels(id, arr);
         refreshKLS(id);
     }
 
@@ -301,15 +321,12 @@
         old.replaceWith(tmp.firstElementChild);
     }
 
-    // ── 初始化骨架 ──
+    // ── 初始化骨架 ──────────────────────────────────────
     function init() {
         container.innerHTML = watchlist.map(item => `
             <div class="card" id="card-${item.id}">
                 <div class="card-top">
-                    <div class="info">
-                        <h2>${item.name}</h2>
-                        <p>${item.id}</p>
-                    </div>
+                    <div class="info"><h2>${item.name}</h2><p>${item.id}</p></div>
                     <div class="data" id="data-${item.id}">
                         <div class="price" style="color:#666; font-size:14px;">等待更新...</div>
                     </div>
@@ -320,7 +337,7 @@
         `).join('');
     }
 
-    // ── 抓取 ──
+    // ── 抓取行情 ────────────────────────────────────────
     async function fetchData() {
         log(`[${new Date().toLocaleTimeString()}] 開始請求資料...`);
         const proxyBase = "https://corsproxy.io/?";
@@ -347,6 +364,7 @@
         log(`[${new Date().toLocaleTimeString()}] 資料更新完成`);
     }
 
+    // ── 渲染 ────────────────────────────────────────────
     function render(data) {
         data.forEach(d => {
             const card     = document.getElementById(`card-${d.id}`);
@@ -355,12 +373,12 @@
             if (!card) return;
             if (d.success) {
                 priceCache[d.id] = d.price;
-                const isUp   = d.change > 0, isDown = d.change < 0;
-                const cc  = isUp ? 'up'         : (isDown ? 'down'        : 'neutral');
-                const sc  = isUp ? 'up-stroke'  : (isDown ? 'down-stroke' : 'neutral-stroke');
+                const isUp = d.change > 0, isDown = d.change < 0;
+                const cc   = isUp ? 'up'        : (isDown ? 'down'        : 'neutral');
+                const sc   = isUp ? 'up-stroke' : (isDown ? 'down-stroke' : 'neutral-stroke');
                 const sign = isUp ? '▲'          : (isDown ? '▼'           : '');
-                const bc  = isUp ? 'up-border'  : (isDown ? 'down-border'  : '');
-                const fd  = fixedFor(d.id);
+                const bc   = isUp ? 'up-border' : (isDown ? 'down-border'  : '');
+                const fd   = fixedFor(d.id);
                 card.className = `card ${bc}`;
                 dataDiv.innerHTML = `
                     <div class="price ${cc}">${d.price.toFixed(fd)}</div>
@@ -368,10 +386,10 @@
                 `;
                 chartDiv.innerHTML = (d.chartData && d.chartData.length > 1)
                     ? generateSVG(d.chartData, sc)
-                    : '<div style="font-size:11px;color:#555;padding-top:15px;text-align:center;">無走勢數據</div>';
+                    : '<div style="font-size:11px; color:#555; padding-top:15px; text-align:center;">無走勢數據</div>';
                 refreshKLS(d.id);
             } else {
-                chartDiv.innerHTML = `<div style="font-size:11px;color:#ff5252;padding-top:15px;text-align:center;">⚠ 抓取失敗: ${d.msg}</div>`;
+                chartDiv.innerHTML = `<div style="font-size:11px; color:#ff5252; padding-top:15px; text-align:center;">&#x26A0; 抓取失敗: ${d.msg}</div>`;
                 log(`[錯誤] ${d.id}: ${d.msg}`);
             }
         });
@@ -390,10 +408,7 @@
                 </svg>`;
     }
 
-    function log(msg) {
-        debugLog.innerHTML += msg + '<br>';
-        debugLog.scrollTop = debugLog.scrollHeight;
-    }
+    function log(msg) { debugLog.innerHTML += msg + '<br>'; debugLog.scrollTop = debugLog.scrollHeight; }
 
     function updateClock() {
         const now = new Date();
@@ -406,8 +421,11 @@
         return isTrade;
     }
 
-    init();
-    fetchData();
+    // ── 啟動 ────────────────────────────────────────────
+    loadFromURL();     // 從 URL hash 讀取關鍵價位
+    updateShareBar();  // 初始化同步列
+    init();            // 建立卡片（含已讀到的價位）
+    fetchData();       // 抓行情
     setInterval(() => { if (updateClock()) fetchData(); }, 15000);
     setInterval(updateClock, 1000);
 </script>
